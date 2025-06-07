@@ -207,12 +207,14 @@ def get_pricing_chart(procedure_id):
         yaxis_title='Price ($)',
         barmode='group',
         template='plotly_white',
+        margin=dict(b=100),  # Add bottom margin for annotation
         annotations=[
             dict(
                 text='Note: Insurance negotiated rates not available in transparency data',
                 showarrow=False,
                 xref="paper", yref="paper",
-                x=0.5, y=-0.1, xanchor='center', yanchor='top',
+                x=0.5, y=-0.15,  # Position below the chart
+                xanchor='center', yanchor='top',
                 font=dict(size=10, color='gray')
             )
         ]

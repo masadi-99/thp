@@ -28,6 +28,8 @@ class Procedure(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(500), nullable=False)
     code = db.Column(db.String(50))
+    code_type = db.Column(db.String(20))  # CPT, HCPCS, DRG, etc.
+    category = db.Column(db.String(100))  # Procedure category/type
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -39,6 +41,8 @@ class Procedure(db.Model):
             'id': self.id,
             'name': self.name,
             'code': self.code,
+            'code_type': self.code_type,
+            'category': self.category,
             'description': self.description
         }
 

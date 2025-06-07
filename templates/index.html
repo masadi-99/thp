@@ -52,6 +52,19 @@
             color: #6c757d;
             font-style: italic;
         }
+        
+        .procedure-meta {
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .code-badge {
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -142,6 +155,9 @@
                     <i class="fas fa-arrow-left"></i> Back to Search
                 </button>
             </div>
+            
+            <!-- Procedure Metadata -->
+            <div id="procedureMetadata" class="procedure-meta"></div>
             
             <div id="pricingChart" class="mb-4"></div>
             
@@ -274,7 +290,10 @@
                         <div class="card price-card h-100" onclick="viewPricing(${procedure.id})">
                             <div class="card-body">
                                 <h6 class="card-title">${procedure.name}</h6>
-                                ${procedure.code ? `<p class="small text-muted mb-2">Code: ${procedure.code}</p>` : ''}
+                                <div class="mb-2">
+                                    ${procedure.code ? `<span class="badge bg-secondary code-badge">${procedure.code_type || 'CODE'}: ${procedure.code}</span>` : ''}
+                                    ${procedure.category ? `<span class="badge bg-info code-badge">${procedure.category}</span>` : ''}
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="badge bg-primary">${procedure.hospital_count} hospital(s)</span>
                                     <small class="text-primary">View Pricing →</small>
@@ -302,7 +321,50 @@
         }
         
         function displayPricingDetails(data) {
-            document.getElementById('selectedProcedureName').textContent = data.procedure.name;
+            const procedure = data.procedure;
+            document.getElementById('selectedProcedureName').textContent = procedure.name;
+            
+            // Display procedure metadata
+            const metadataContainer = document.getElementById('procedureMetadata');
+            let metadataHtml = '<div class="row">';
+            
+            if (procedure.code) {
+                metadataHtml += `
+                    <div class="col-md-3">
+                        <strong>Code:</strong> ${procedure.code}
+                        ${procedure.code_type ? ` (${procedure.code_type})` : ''}
+                    </div>
+                `;
+            }
+            
+            if (procedure.category) {
+                metadataHtml += `
+                    <div class="col-md-3">
+                        <strong>Category:</strong> ${procedure.category}
+                    </div>
+                `;
+            }
+            
+            metadataHtml += `
+                <div class="col-md-6">
+                    <strong>Description:</strong> ${procedure.description || procedure.name}
+                </div>
+            `;
+            
+            metadataHtml += '</div>';
+            
+            if (procedure.code) {
+                metadataHtml += `
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            This code ensures you're comparing the exact same procedure across hospitals.
+                        </small>
+                    </div>
+                `;
+            }
+            
+            metadataContainer.innerHTML = metadataHtml;
             
             // Display hospital pricing cards
             const hospitalContainer = document.getElementById('hospitalPricing');
@@ -346,7 +408,7 @@
             `).join('');
             
             // Load and display chart
-            loadPricingChart(data.procedure.id);
+            loadPricingChart(procedure.id);
             
             document.getElementById('searchResults').style.display = 'none';
             document.getElementById('pricingDetails').style.display = 'block';

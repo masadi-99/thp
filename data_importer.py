@@ -64,7 +64,31 @@ def import_hospital_transparency_json(file_path):
             
             # Extract procedure information
             procedure_name = item.get('description', 'Unknown Procedure')
-            procedure_code = item.get('code', {}).get('value', '') if isinstance(item.get('code'), dict) else str(item.get('code', ''))
+            
+            # Extract code information more thoroughly
+            code_info = item.get('code_information', [])
+            procedure_code = ''
+            code_type = 'OTHER'
+            
+            # Try to extract from code_information array first
+            if code_info and isinstance(code_info, list) and len(code_info) > 0:
+                for code_item in code_info:
+                    if isinstance(code_item, dict):
+                        code_val = code_item.get('code', '')
+                        code_type_val = code_item.get('type', '').upper()
+                        if code_val and code_type_val in ['CPT', 'HCPCS', 'DRG', 'ICD10', 'MS-DRG']:
+                            procedure_code = str(code_val)
+                            code_type = code_type_val
+                            break
+            
+            # Fallback to direct code field if no code_information
+            if not procedure_code:
+                direct_code = item.get('code', '')
+                if isinstance(direct_code, dict):
+                    procedure_code = direct_code.get('value', '')
+                    code_type = direct_code.get('type', 'OTHER').upper()
+                else:
+                    procedure_code = str(direct_code) if direct_code else ''
             
             # Skip if no meaningful procedure name
             if not procedure_name or procedure_name.strip() == '':
@@ -77,6 +101,8 @@ def import_hospital_transparency_json(file_path):
                 procedure = Procedure(
                     name=procedure_name,
                     code=procedure_code,
+                    code_type=code_type,
+                    category='Medical Procedure',  # Default category
                     description=procedure_name
                 )
                 db.session.add(procedure)
