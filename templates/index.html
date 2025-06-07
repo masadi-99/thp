@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Pricing Transparency Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .search-section {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+        }
+        .price-badge {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .comparison-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #chart-container {
+            min-height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-hospital"></i> Hospital Pricing Tool</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#search">Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#compare">Compare</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-search-dollar"></i> 
+                Compare Hospital Prices
+            </h1>
+            <p class="lead mb-4">
+                Find and compare medical procedure prices across hospitals in your area. 
+                Make informed healthcare decisions with transparent pricing data.
+            </p>
+            <a href="#search" class="btn btn-light btn-lg">
+                <i class="fas fa-search"></i> Start Searching
+            </a>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section id="search" class="search-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-stethoscope"></i> Search Procedures</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <input type="text" id="procedure-search" class="form-control" 
+                                       placeholder="Search for procedures (e.g. MRI, CT Scan, Surgery)">
+                            </div>
+                            <div id="procedure-results" class="list-group mb-3" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Procedure results will be populated here -->
+                            </div>
+                            <button id="search-btn" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search Prices
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-hospital-alt"></i> Select Hospitals</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="hospital-list" class="mb-3" style="max-height: 350px; overflow-y: auto;">
+                                <!-- Hospital checkboxes will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-5" style="display: none;">
+        <div class="container">
+            <h2 class="mb-4"><i class="fas fa-chart-bar"></i> Price Comparison Results</h2>
+            
+            <!-- Chart -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="chart-container">
+                                <!-- Chart will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-table"></i> Detailed Price Breakdown</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive comparison-table">
+                                <table class="table table-striped" id="price-table">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Hospital</th>
+                                            <th>Location</th>
+                                            <th>Cash Price</th>
+                                            <th>Min Rate</th>
+                                            <th>Max Rate</th>
+                                            <th>Savings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="price-table-body">
+                                        <!-- Price data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 Hospital Pricing Transparency Tool. For informational purposes only.</p>
+            <p><small>Always verify pricing directly with healthcare providers.</small></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedProcedureId = null;
+        let selectedHospitals = new Set();
+
+        // Load hospitals on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHospitals();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Procedure search
+            document.getElementById('procedure-search').addEventListener('input', debounce(searchProcedures, 300));
+            
+            // Search button
+            document.getElementById('search-btn').addEventListener('click', performSearch);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        async function loadHospitals() {
+            try {
+                const response = await fetch('/api/hospitals');
+                const hospitals = await response.json();
+                
+                const hospitalList = document.getElementById('hospital-list');
+                hospitalList.innerHTML = hospitals.map(hospital => `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" value="${hospital.id}" 
+                               id="hospital-${hospital.id}" onchange="toggleHospital(${hospital.id})">
+                        <label class="form-check-label" for="hospital-${hospital.id}">
+                            <strong>${hospital.name}</strong><br>
+                            <small class="text-muted">${hospital.location}</small>
+                        </label>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading hospitals:', error);
+            }
+        }
+
+        async function searchProcedures() {
+            const searchTerm = document.getElementById('procedure-search').value;
+            if (searchTerm.length < 2) {
+                document.getElementById('procedure-results').innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/procedures?search=${encodeURIComponent(searchTerm)}`);
+                const procedures = await response.json();
+                
+                const resultsDiv = document.getElementById('procedure-results');
+                resultsDiv.innerHTML = procedures.map(procedure => `
+                    <a href="#" class="list-group-item list-group-item-action" 
+                       onclick="selectProcedure(${procedure.id}, '${procedure.name}', '${procedure.code}')">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">${procedure.name}</h6>
+                            <small class="text-muted">${procedure.code}</small>
+                        </div>
+                        <small class="text-muted">${procedure.category}</small>
+                    </a>
+                `).join('');
+            } catch (error) {
+                console.error('Error searching procedures:', error);
+            }
+        }
+
+        function selectProcedure(id, name, code) {
+            selectedProcedureId = id;
+            document.getElementById('procedure-search').value = `${name} (${code})`;
+            document.getElementById('procedure-results').innerHTML = '';
+        }
+
+        function toggleHospital(hospitalId) {
+            if (selectedHospitals.has(hospitalId)) {
+                selectedHospitals.delete(hospitalId);
+            } else {
+                selectedHospitals.add(hospitalId);
+            }
+        }
+
+        async function performSearch() {
+            if (!selectedProcedureId) {
+                alert('Please select a procedure first.');
+                return;
+            }
+            
+            if (selectedHospitals.size === 0) {
+                alert('Please select at least one hospital.');
+                return;
+            }
+
+            try {
+                // Get pricing data
+                const response = await fetch(`/api/pricing/${selectedProcedureId}`);
+                const pricingData = await response.json();
+                
+                // Filter data for selected hospitals
+                const filteredData = pricingData.filter(item => 
+                    Array.from(selectedHospitals).some(id => 
+                        item.hospital_name === document.querySelector(`label[for="hospital-${id}"]`).querySelector('strong').textContent
+                    )
+                );
+                
+                if (filteredData.length === 0) {
+                    alert('No pricing data found for the selected hospitals and procedure.');
+                    return;
+                }
+
+                displayResults(filteredData);
+                loadChart();
+                
+            } catch (error) {
+                console.error('Error performing search:', error);
+                alert('Error fetching pricing data. Please try again.');
+            }
+        }
+
+        function displayResults(data) {
+            const tableBody = document.getElementById('price-table-body');
+            const minPrice = Math.min(...data.map(item => item.cash_price || Infinity));
+            
+            tableBody.innerHTML = data.map(item => {
+                const savings = item.cash_price ? ((item.cash_price - minPrice) * -1) : 0;
+                const savingsClass = savings > 0 ? 'text-success' : savings < 0 ? 'text-danger' : '';
+                
+                return `
+                    <tr>
+                        <td><strong>${item.hospital_name}</strong></td>
+                        <td>${item.hospital_location}</td>
+                        <td><span class="badge bg-primary price-badge">$${item.cash_price?.toLocaleString() || 'N/A'}</span></td>
+                        <td><span class="badge bg-success">$${item.min_negotiated_rate?.toLocaleString() || 'N/A'}</span></td>
+                        <td><span class="badge bg-warning">$${item.max_negotiated_rate?.toLocaleString() || 'N/A'}</span></td>
+                        <td class="${savingsClass}"><strong>${savings !== 0 ? '$' + Math.abs(savings).toLocaleString() : '-'}</strong></td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function loadChart() {
+            try {
+                const response = await fetch(`/api/chart/${selectedProcedureId}`);
+                const chartData = await response.json();
+                
+                if (chartData.error) {
+                    document.getElementById('chart-container').innerHTML = 
+                        `<div class="alert alert-warning">${chartData.error}</div>`;
+                    return;
+                }
+                
+                const graphDiv = document.getElementById('chart-container');
+                Plotly.newPlot(graphDiv, JSON.parse(chartData).data, JSON.parse(chartData).layout);
+                
+            } catch (error) {
+                console.error('Error loading chart:', error);
+            }
+        }
+    </script>
+</body>
+</html> 
