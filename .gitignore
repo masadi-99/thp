@@ -10,10 +10,10 @@ ENV/
 env.bak/
 venv.bak/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Database - Allow processed database but ignore temp files
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 
 # IDE
 .vscode/
@@ -37,12 +37,14 @@ data/
 imports/
 *.csv
 *.xlsx
-*.json
 
-# Specific hospital pricing files
+# Large source hospital pricing files (keep these ignored due to size)
+*.json
 106010776_ucsf-medical-center_standardcharges.json
 946174066_stanford-health-care_standardcharges.json
+_sites_default_files_cms-hpt_956006143_ronald-reagan-ucla-medical-center_standardcharges.json
+951644600_CEDARS-SINAI-MEDICAL-CENTER_STANDARDCHARGES.json
+2025-06-01_KPIC-NC_index.json
 
 # Flask
-instance/
 .webassets-cache 
