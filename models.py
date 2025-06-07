@@ -29,8 +29,9 @@ class Procedure(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text, nullable=False)
-    code = db.Column(db.String(50), nullable=False)
-    code_type = db.Column(db.String(20), nullable=False)
+    code = db.Column(db.String(50))
+    code_type = db.Column(db.String(20))
+    category = db.Column(db.String(50))
     created_at = db.Column(db.String(50), default=datetime.utcnow)
     
     # Relationship
@@ -41,7 +42,8 @@ class Procedure(db.Model):
             'id': self.id,
             'description': self.description,
             'code': self.code,
-            'code_type': self.code_type
+            'code_type': self.code_type,
+            'category': self.category
         }
 
     def __repr__(self):
