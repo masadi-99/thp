@@ -39,6 +39,10 @@ imports/
 *.xlsx
 *.json
 
+# Specific hospital pricing files
+106010776_ucsf-medical-center_standardcharges.json
+946174066_stanford-health-care_standardcharges.json
+
 # Flask
 instance/
 .webassets-cache 
