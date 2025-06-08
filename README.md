@@ -69,13 +69,14 @@ A powerful web application that compares medical procedure and medication prices
 ### **Quick Start**
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd hospital-price-comparison
+git clone https://github.com/masadi-99/thp
+cd thp
 
 # Install dependencies (using Anaconda)
-/opt/anaconda3/bin/python -m pip install flask sqlalchemy
+/opt/anaconda3/bin/python -m pip install -r requirements.txt
 
-# Build hospital datasets (one-time setup)
+# Build hospital datasets (one-time setup - required!)
+# Note: Dataset .pkl files are not included in repo due to size
 /opt/anaconda3/bin/python build_stanford.py
 /opt/anaconda3/bin/python build_ucsf.py  
 /opt/anaconda3/bin/python build_ucla.py
@@ -86,6 +87,8 @@ cd hospital-price-comparison
 
 # Visit http://127.0.0.1:5001 in your browser
 ```
+
+**📝 Note**: Dataset pickle files (*.pkl) are not included in the repository due to GitHub file size limits. They will be automatically created when you run the build scripts above.
 
 ## **🔍 Usage Examples**
 
