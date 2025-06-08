@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .hero-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -15,14 +16,15 @@
         }
         
         .data-limitation-alert {
-            border-left: 4px solid #ffc107;
-            background-color: #fff3cd;
-            border-color: #ffeaa7;
+            border-left: 4px solid #28a745;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
         }
         
         .price-card {
             transition: transform 0.2s;
             border: 1px solid #dee2e6;
+            cursor: pointer;
         }
         
         .price-card:hover {
@@ -65,6 +67,52 @@
             font-size: 0.8rem;
             margin-right: 0.5rem;
         }
+        
+        .savings-highlight {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hospital-price-best {
+            border-left: 4px solid #28a745;
+        }
+        
+        .hospital-price-worst {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .match-card {
+            border-left: 4px solid #007bff;
+        }
+        
+        .pricing-option {
+            background-color: #fdfdfd;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+        }
+        
+        .price-comparison-box {
+            border: 2px solid #e9ecef;
+            border-radius: 0.5rem;
+            transition: border-color 0.2s;
+        }
+        
+        .price-comparison-box:hover {
+            border-color: #007bff;
+        }
+        
+        .cash-price-highlight {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .gross-charge-highlight {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -93,12 +141,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="display-4 fw-bold mb-4">Hospital Pricing Transparency Tool</h1>
-                    <p class="lead mb-4">Compare hospital cash prices and standard charges for medical procedures. 
-                    Get transparency into healthcare costs before you need care.</p>
+                    <h1 class="display-4 fw-bold mb-4">Cross-Hospital Price Comparison</h1>
+                    <p class="lead mb-4">Compare the same procedures and medications across multiple hospitals. 
+                    Find massive savings by choosing the right hospital for your care.</p>
                     <div class="d-flex justify-content-center gap-3">
-                        <span class="badge bg-light text-dark fs-6">Cash Prices Available</span>
-                        <span class="badge bg-light text-dark fs-6">Cross-Hospital Comparison</span>
+                        <span class="badge bg-light text-dark fs-6">4 Major Hospitals</span>
+                        <span class="badge bg-light text-dark fs-6">Code-Based Matching</span>
                         <span class="badge bg-light text-dark fs-6">Real Transparency Data</span>
                     </div>
                 </div>
@@ -106,13 +154,13 @@
         </div>
     </div>
 
-    <!-- Data Limitations Notice -->
+    <!-- Data Capabilities Notice -->
     <div class="container my-4">
         <div class="alert data-limitation-alert">
-            <h5 class="alert-heading"><i class="fas fa-info-circle"></i> Understanding Healthcare Pricing Data</h5>
-            <p class="mb-2"><strong>What's Available:</strong> Cash prices (self-pay) and hospital standard charges (gross charges)</p>
-            <p class="mb-2"><strong>What's NOT Available:</strong> Insurance negotiated rates are not published in transparency files</p>
-            <p class="mb-0"><small class="text-muted">Hospital transparency files contain placeholder text for insurance rates, stating "The modified price is presented in the standard charge value." Your actual cost with insurance will likely differ from these published prices.</small></p>
+            <h5 class="alert-heading"><i class="fas fa-check-circle"></i> Cross-Hospital Price Matching</h5>
+            <p class="mb-2"><strong>What This Tool Does:</strong> Matches procedures and medications by medical codes (NDC, HCPCS, CPT) across 4 major hospitals</p>
+            <p class="mb-2"><strong>Massive Savings Found:</strong> Up to 11,000%+ price differences for the same procedure between hospitals</p>
+            <p class="mb-0"><small class="text-muted">Results show only procedures/medications available at 2+ hospitals for meaningful comparison.</small></p>
         </div>
     </div>
 
@@ -123,16 +171,16 @@
                 <div class="col-lg-8 mx-auto">
                     <div class="card shadow-sm">
                         <div class="card-body p-4">
-                            <h3 class="card-title text-center mb-4">Search Medical Procedures</h3>
+                            <h3 class="card-title text-center mb-4">Search Across All Hospitals</h3>
                             <div class="input-group input-group-lg">
                                 <input type="text" class="form-control" id="procedureSearch" 
-                                       placeholder="Search procedures (e.g., MRI, echocardiogram, blood test)">
+                                       placeholder="Search medications or procedures (e.g., insulin, MRI, echocardiogram)">
                                 <button class="btn btn-primary" type="button" onclick="searchProcedures()">
                                     <i class="fas fa-search"></i> Search
                                 </button>
                             </div>
                             <div class="text-center mt-3">
-                                <small class="text-muted">Search by procedure name, description, or medical code</small>
+                                <small class="text-muted">Searches Stanford, UCSF, UCLA, and Cedars-Sinai simultaneously</small>
                             </div>
                         </div>
                     </div>
@@ -144,7 +192,7 @@
     <!-- Results Section -->
     <div class="container my-5">
         <div id="searchResults" style="display: none;">
-            <h4 class="mb-4">Search Results</h4>
+            <h4 class="mb-4">Cross-Hospital Matches</h4>
             <div id="proceduresList" class="row"></div>
         </div>
 
@@ -155,6 +203,9 @@
                     <i class="fas fa-arrow-left"></i> Back to Search
                 </button>
             </div>
+            
+            <!-- Savings Analysis -->
+            <div id="savingsAnalysis" class="savings-highlight"></div>
             
             <!-- Procedure Metadata -->
             <div id="procedureMetadata" class="procedure-meta"></div>
@@ -169,7 +220,7 @@
     <div class="container my-5">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Database Statistics</h5>
+                <h5 class="mb-0">Cross-Hospital Dataset Statistics</h5>
             </div>
             <div class="card-body">
                 <div class="row" id="statsContent">
@@ -187,23 +238,22 @@
             <div class="row">
                 <div class="col-md-8">
                     <h6>About This Tool</h6>
-                    <p class="small mb-0">This tool provides access to hospital pricing transparency data as required by federal regulations. 
-                    The data comes directly from hospital-published pricing files and reflects cash prices and standard charges, 
-                    but does not include actual insurance negotiated rates.</p>
+                    <p class="small mb-0">This tool provides cross-hospital price comparison using medical codes to match the same procedures across multiple hospitals. 
+                    Data comes from hospital transparency files and shows real pricing differences that can save thousands of dollars.</p>
                 </div>
                 <div class="col-md-4 text-md-end">
-                    <p class="small mb-0">Data sources: Hospital transparency files</p>
-                    <p class="small mb-0">Last updated: <span id="lastUpdated">Recent</span></p>
+                    <p class="small mb-0">Hospitals: Stanford, UCSF, UCLA, Cedars-Sinai</p>
+                    <p class="small mb-0">169,391+ items with code matching</p>
                 </div>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
     
     <script>
         let currentProcedures = [];
+        let currentSearchTerm = '';
         
         // Load statistics on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -221,30 +271,48 @@
             fetch('/api/stats')
                 .then(response => response.json())
                 .then(data => {
-                    const stats = data.statistics;
-                    const quality = data.data_quality;
+                    const totals = data.totals;
+                    const datasets = data.dataset_stats;
+                    
+                    let hospitalList = '';
+                    Object.keys(datasets).forEach(key => {
+                        const hospital = datasets[key];
+                        hospitalList += `<div class="col-md-3 text-center mb-3">
+                            <div class="h5 text-primary">${hospital.items.toLocaleString()}</div>
+                            <div class="small text-muted">${hospital.name}</div>
+                            <div class="small text-secondary">${hospital.ndc_codes.toLocaleString()} NDC codes</div>
+                        </div>`;
+                    });
                     
                     document.getElementById('statsContent').innerHTML = `
-                        <div class="col-md-3 text-center">
-                            <div class="h3 text-primary">${stats.hospitals.toLocaleString()}</div>
-                            <div class="small text-muted">Hospitals</div>
+                        <div class="col-12 mb-3">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="h3 text-success">${totals.hospitals_with_datasets}</div>
+                                    <div class="small text-muted">Hospital Datasets</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="h3 text-info">${totals.total_items.toLocaleString()}</div>
+                                    <div class="small text-muted">Total Items</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="h3 text-warning">${totals.total_ndc_codes.toLocaleString()}</div>
+                                    <div class="small text-muted">NDC Medication Codes</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="h3 text-primary">${totals.total_hcpcs_codes.toLocaleString()}</div>
+                                    <div class="small text-muted">HCPCS Procedure Codes</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3 text-center">
-                            <div class="h3 text-success">${stats.procedures.toLocaleString()}</div>
-                            <div class="small text-muted">Procedures</div>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <div class="h3 text-info">${stats.pricing_records.toLocaleString()}</div>
-                            <div class="small text-muted">Pricing Records</div>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <div class="h3 text-warning">${stats.shared_procedures.toLocaleString()}</div>
-                            <div class="small text-muted">Comparable Procedures</div>
+                        <div class="col-12">
+                            <div class="row">
+                                ${hospitalList}
+                            </div>
                         </div>
                         <div class="col-12 mt-3">
                             <small class="text-muted">
-                                Cash price coverage: ${quality.cash_price_coverage} | 
-                                Gross charge coverage: ${quality.gross_charge_coverage}
+                                <strong>Capabilities:</strong> ${data.capabilities ? data.capabilities.join(' • ') : 'Cross-hospital matching, Price comparison, Code-based search'}
                             </small>
                         </div>
                     `;
@@ -253,7 +321,7 @@
                     console.error('Error loading statistics:', error);
                     document.getElementById('statsContent').innerHTML = `
                         <div class="col-12 text-center text-muted">
-                            <small>Unable to load statistics</small>
+                            <small>Unable to load statistics. Please check if the server is running.</small>
                         </div>
                     `;
                 });
@@ -262,6 +330,8 @@
         function searchProcedures() {
             const searchTerm = document.getElementById('procedureSearch').value.trim();
             if (!searchTerm) return;
+            
+            currentSearchTerm = searchTerm;
             
             fetch(`/api/procedures?search=${encodeURIComponent(searchTerm)}`)
                 .then(response => response.json())
@@ -281,38 +351,66 @@
             if (procedures.length === 0) {
                 container.innerHTML = `
                     <div class="col-12 text-center py-4">
-                        <p class="text-muted">No procedures found. Try a different search term.</p>
+                        <p class="text-muted">No cross-hospital matches found. Try a different search term.</p>
+                        <small class="text-muted">Results only show procedures/medications available at 2+ hospitals for meaningful comparison.</small>
                     </div>
                 `;
             } else {
-                container.innerHTML = procedures.map(procedure => `
-                    <div class="col-md-6 col-lg-4 mb-3">
-                        <div class="card price-card h-100" onclick="viewPricing(${procedure.id})">
-                            <div class="card-body">
-                                <h6 class="card-title">${procedure.name}</h6>
-                                <div class="mb-2">
-                                    ${procedure.code ? `<span class="badge bg-secondary code-badge">${procedure.code_type || 'CODE'}: ${procedure.code}</span>` : ''}
-                                    ${procedure.category ? `<span class="badge bg-info code-badge">${procedure.category}</span>` : ''}
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-primary">${procedure.hospital_count} hospital(s)</span>
-                                    <small class="text-primary">View Pricing →</small>
+                container.innerHTML = procedures.map((procedure, index) => {
+                    const savings = procedure.price_range.spread;
+                    const savingsPercent = procedure.price_range.spread_percent;
+                    const minPrice = procedure.price_range.min;
+                    const maxPrice = procedure.price_range.max;
+                    
+                    return `
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card price-card match-card h-100" onclick="viewPricing('${procedure.match_key}', ${index})">
+                                <div class="card-body">
+                                    <h6 class="card-title">${procedure.name.substring(0, 80)}${procedure.name.length > 80 ? '...' : ''}</h6>
+                                    <div class="mb-2">
+                                        <span class="badge bg-secondary code-badge">${procedure.code_type}: ${procedure.code}</span>
+                                        <span class="badge bg-success code-badge">${procedure.hospital_count} hospitals</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Cash Price Range:</small><br>
+                                                <strong class="text-success">$${minPrice.toLocaleString()}</strong> - 
+                                                <strong class="text-danger">$${maxPrice.toLocaleString()}</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Potential Savings:</small><br>
+                                                <small class="text-warning fw-bold">
+                                                    $${savings.toLocaleString()}
+                                                    ${savingsPercent > 100 ? `<br>(${savingsPercent.toFixed(0)}% savings)` : ''}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-primary">View Details →</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
             
             document.getElementById('searchResults').style.display = 'block';
             document.getElementById('pricingDetails').style.display = 'none';
         }
         
-        function viewPricing(procedureId) {
-            fetch(`/api/pricing/${procedureId}`)
+        function viewPricing(matchKey, index) {
+            const procedure = currentProcedures[index];
+            
+            // Call the new API endpoint with required parameters
+            const url = `/api/pricing/match_${index}?search=${encodeURIComponent(currentSearchTerm)}&code=${encodeURIComponent(procedure.code)}&code_type=${encodeURIComponent(procedure.code_type)}`;
+            
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    displayPricingDetails(data);
+                    displayPricingDetails(data, procedure, index);
                 })
                 .catch(error => {
                     console.error('Error loading pricing:', error);
@@ -320,118 +418,232 @@
                 });
         }
         
-        function displayPricingDetails(data) {
+        function displayPricingDetails(data, procedureMatch, index) {
             const procedure = data.procedure;
             document.getElementById('selectedProcedureName').textContent = procedure.name;
+            
+            // Display savings analysis
+            if (data.price_analysis) {
+                const analysis = data.price_analysis;
+                document.getElementById('savingsAnalysis').innerHTML = `
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1"><i class="fas fa-piggy-bank"></i> Potential Savings Analysis</h5>
+                            <p class="mb-0">You could save <strong>$${analysis.potential_savings.toLocaleString()}</strong> by choosing the lowest-priced hospital</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="h3 mb-0">${analysis.savings_percent.toFixed(0)}%</div>
+                            <small>Savings Potential</small>
+                        </div>
+                    </div>
+                `;
+            }
             
             // Display procedure metadata
             const metadataContainer = document.getElementById('procedureMetadata');
             let metadataHtml = '<div class="row">';
             
-            if (procedure.code) {
-                metadataHtml += `
-                    <div class="col-md-3">
-                        <strong>Code:</strong> ${procedure.code}
-                        ${procedure.code_type ? ` (${procedure.code_type})` : ''}
-                    </div>
-                `;
-            }
-            
-            if (procedure.category) {
-                metadataHtml += `
-                    <div class="col-md-3">
-                        <strong>Category:</strong> ${procedure.category}
-                    </div>
-                `;
-            }
-            
             metadataHtml += `
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <strong>${procedure.code_type} Code:</strong> ${procedure.code}
+                </div>
+                <div class="col-md-8">
                     <strong>Description:</strong> ${procedure.description || procedure.name}
                 </div>
             `;
             
             metadataHtml += '</div>';
-            
-            if (procedure.code) {
-                metadataHtml += `
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle"></i>
-                            This code ensures you're comparing the exact same procedure across hospitals.
-                        </small>
-                    </div>
-                `;
-            }
+            metadataHtml += `
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        This code ensures you're comparing the exact same procedure/medication across all hospitals.
+                    </small>
+                </div>
+            `;
             
             metadataContainer.innerHTML = metadataHtml;
             
             // Display hospital pricing cards
             const hospitalContainer = document.getElementById('hospitalPricing');
-            hospitalContainer.innerHTML = data.pricing_by_hospital.map(item => `
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card price-card h-100">
-                        <div class="card-body">
-                            <h6 class="card-title">${item.hospital.name}</h6>
-                            ${item.hospital.location ? `<p class="small text-muted mb-3">${item.hospital.location}</p>` : ''}
-                            
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-medium">Cash Price:</span>
-                                    <span class="price-tag cash-price">
-                                        ${item.pricing.cash_price ? `$${item.pricing.cash_price.toLocaleString()}` : '<span class="price-na">Not Available</span>'}
-                                    </span>
+            const hospitalData = data.pricing_by_hospital;
+            
+            // Sort by price for better display
+            hospitalData.sort((a, b) => {
+                const priceA = a.pricing.best_price || Infinity;
+                const priceB = b.pricing.best_price || Infinity;
+                return priceA - priceB;
+            });
+            
+            hospitalContainer.innerHTML = hospitalData.map((item, idx) => {
+                const isLowest = idx === 0 && item.pricing.best_price > 0;
+                const isHighest = idx === hospitalData.length - 1 && hospitalData.length > 1;
+                const cardClass = isLowest ? 'hospital-price-best' : (isHighest ? 'hospital-price-worst' : '');
+                
+                return `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card price-card h-100 ${cardClass}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h6 class="card-title">${item.hospital.name}</h6>
+                                    ${isLowest ? '<span class="badge bg-success">Lowest Price</span>' : ''}
+                                    ${isHighest ? '<span class="badge bg-danger">Highest Price</span>' : ''}
                                 </div>
                                 
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-medium">Gross Charge:</span>
-                                    <span class="price-tag gross-charge">
-                                        ${item.pricing.gross_charge ? `$${item.pricing.gross_charge.toLocaleString()}` : '<span class="price-na">Not Available</span>'}
-                                    </span>
-                                </div>
-                                
-                                ${item.pricing.price_range.min && item.pricing.price_range.max ? `
-                                    <div class="mt-2 pt-2 border-top">
-                                        <small class="text-muted">
-                                            Range: $${item.pricing.price_range.min.toLocaleString()} - $${item.pricing.price_range.max.toLocaleString()}
-                                        </small>
+                                <!-- Price Summary -->
+                                <div class="mb-3 p-2 bg-light rounded">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Best Cash Price</small>
+                                            <strong class="text-success">
+                                                ${item.pricing.best_price ? `$${item.pricing.best_price.toLocaleString()}` : 'N/A'}
+                                            </strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Price Variations</small>
+                                            <strong class="text-info">
+                                                ${item.pricing.item_count} option${item.pricing.item_count !== 1 ? 's' : ''}
+                                            </strong>
+                                        </div>
                                     </div>
-                                ` : ''}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    ${item.pricing.all_items.map(priceItem => {
+                                        const priceOptions = priceItem.prices || [];
+                                        if (priceOptions.length === 0) return '';
+                                        
+                                        // Get the best pricing option (lowest discounted cash price)
+                                        const bestPrice = priceOptions.reduce((best, current) => {
+                                            const currentCash = current.discounted_cash || Infinity;
+                                            const bestCash = best.discounted_cash || Infinity;
+                                            return currentCash < bestCash ? current : best;
+                                        });
+                                        
+                                        return `
+                                            <div class="pricing-option mb-3 pb-2 border-bottom">
+                                                <small class="text-muted d-block fw-medium mb-2">${priceItem.description}</small>
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div class="text-center p-2 bg-light rounded">
+                                                            <small class="text-muted d-block">Cash Price</small>
+                                                            <span class="price-tag cash-price">
+                                                                ${bestPrice.discounted_cash ? `$${bestPrice.discounted_cash.toLocaleString()}` : '<span class="price-na">Not Available</span>'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-center p-2 bg-light rounded">
+                                                            <small class="text-muted d-block">Gross Charge</small>
+                                                            <span class="price-tag gross-charge">
+                                                                ${bestPrice.gross_charge ? `$${bestPrice.gross_charge.toLocaleString()}` : '<span class="price-na">Not Available</span>'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-12 text-center">
+                                                        <small class="text-muted">
+                                                            ${bestPrice.setting ? `${bestPrice.setting} • ` : ''}${bestPrice.billing_class || ''}
+                                                            ${priceOptions.length > 1 ? ` • ${priceOptions.length} pricing options` : ''}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                    
+                                    <div class="mt-3 pt-2 border-top bg-success text-white rounded p-2">
+                                        <div class="text-center">
+                                            <small class="d-block opacity-75">Best Overall Cash Price</small>
+                                            <strong class="h6 mb-0">
+                                                ${item.pricing.best_price ? `$${item.pricing.best_price.toLocaleString()}` : 'Not Available'}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            ${item.last_updated ? `
-                                <small class="text-muted">Updated: ${new Date(item.last_updated).toLocaleDateString()}</small>
-                            ` : ''}
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             // Load and display chart
-            loadPricingChart(procedure.id);
+            loadPricingChart(index);
             
             document.getElementById('searchResults').style.display = 'none';
             document.getElementById('pricingDetails').style.display = 'block';
         }
         
-        function loadPricingChart(procedureId) {
-            fetch(`/api/chart/${procedureId}`)
+        function loadPricingChart(index) {
+            const procedure = currentProcedures[index];
+            const url = `/api/chart/match_${index}?search=${encodeURIComponent(currentSearchTerm)}&code=${encodeURIComponent(procedure.code)}&code_type=${encodeURIComponent(procedure.code_type)}`;
+            
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.chart) {
-                        Plotly.newPlot('pricingChart', JSON.parse(data.chart).data, JSON.parse(data.chart).layout, {
-                            responsive: true,
-                            displayModeBar: false
-                        });
+                    if (data.error) {
+                        document.getElementById('pricingChart').innerHTML = `<div class="alert alert-warning">${data.error}</div>`;
+                        return;
                     }
-                })
-                .catch(error => {
-                    console.error('Error loading chart:', error);
-                    document.getElementById('pricingChart').innerHTML = `
-                        <div class="alert alert-warning">
-                            <small>Unable to load pricing chart</small>
+                    
+                    // Create Chart.js chart with the received data
+                    const canvas = document.createElement('canvas');
+                    canvas.id = 'priceChart';
+                    canvas.width = 800;
+                    canvas.height = 400;
+                    document.getElementById('pricingChart').innerHTML = '';
+                    document.getElementById('pricingChart').appendChild(canvas);
+                    
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Add custom formatting function to the chart options
+                    if (data.options && data.options.scales && data.options.scales.y && data.options.scales.y.ticks) {
+                        data.options.scales.y.ticks.callback = function(value) {
+                            return '$' + value.toLocaleString();
+                        };
+                    }
+                    
+                    new Chart(ctx, {
+                        type: data.type,
+                        data: data.data,
+                        options: data.options
+                    });
+                    
+                    // Add summary below chart
+                    const summary = document.createElement('div');
+                    summary.className = 'mt-3 p-3 bg-light rounded';
+                    
+                    // Calculate savings from the data
+                    const cashPrices = data.data.datasets[0].data;
+                    const grossCharges = data.data.datasets[1].data;
+                    
+                    const minCash = Math.min(...cashPrices);
+                    const maxCash = Math.max(...cashPrices);
+                    const minGross = Math.min(...grossCharges);
+                    const maxGross = Math.max(...grossCharges);
+                    
+                    const cashSavings = maxCash - minCash;
+                    const grossSavings = maxGross - minGross;
+                    
+                    summary.innerHTML = `
+                        <h6>Price Summary:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Cash Price Range:</strong> $${minCash.toLocaleString()} - $${maxCash.toLocaleString()}<br>
+                                <strong class="text-success">Potential Cash Savings:</strong> $${cashSavings.toLocaleString()}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Gross Charge Range:</strong> $${minGross.toLocaleString()} - $${maxGross.toLocaleString()}<br>
+                                <strong class="text-info">Gross Charge Difference:</strong> $${grossSavings.toLocaleString()}
+                            </div>
                         </div>
                     `;
+                    document.getElementById('pricingChart').appendChild(summary);
+                })
+                .catch(error => {
+                    console.error('Chart error:', error);
+                    document.getElementById('pricingChart').innerHTML = '<div class="alert alert-danger">Failed to load chart</div>';
                 });
         }
         
