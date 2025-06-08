@@ -125,6 +125,24 @@ HOSPITAL_NAMES = {
     'cedars': 'Cedars-Sinai Medical Center'
 }
 
+def extract_hcpcs_from_ucla_code(code_value):
+    """
+    Extract HCPCS code from UCLA's RRUCLA format.
+    Format: RRUCLA-XXXXXXXXXX-1000-HCPCS-XXXX-XXXX-Y-TC---
+    HCPCS code is at index 3 when split by '-'
+    """
+    if not isinstance(code_value, str):
+        return None
+        
+    if code_value.startswith('RRUCLA-'):
+        parts = code_value.split('-')
+        if len(parts) >= 4:
+            potential_hcpcs = parts[3]
+            # Validate that it looks like a valid HCPCS code (typically 5 digits or alphanumeric)
+            if potential_hcpcs and (potential_hcpcs.isdigit() or potential_hcpcs.isalnum()) and 4 <= len(potential_hcpcs) <= 5:
+                return potential_hcpcs
+    return None
+
 def build_hospital_dataset(hospital_key):
     """Build dataset for a specific hospital"""
     if hospital_key not in HOSPITAL_FILES:
@@ -154,6 +172,7 @@ def build_hospital_dataset(hospital_key):
     
     processed_count = 0
     skipped_count = 0
+    extracted_hcpcs_count = 0
     
     for i, item in enumerate(items):
         if i % 10000 == 0:
@@ -176,6 +195,16 @@ def build_hospital_dataset(hospital_key):
                             'code': code_value,
                             'type': code_type
                         })
+                        
+                        # Special handling for UCLA: extract HCPCS from RRUCLA format
+                        if hospital_key == 'ucla' and code_type == 'CDM':
+                            extracted_hcpcs = extract_hcpcs_from_ucla_code(code_value)
+                            if extracted_hcpcs:
+                                codes.append({
+                                    'code': extracted_hcpcs,
+                                    'type': 'HCPCS'
+                                })
+                                extracted_hcpcs_count += 1
         
         # Extract pricing
         prices = []
@@ -211,6 +240,8 @@ def build_hospital_dataset(hospital_key):
     print(f"✅ Dataset built successfully!")
     print(f"   Processed: {processed_count} items")
     print(f"   Skipped: {skipped_count} items")
+    if hospital_key == 'ucla':
+        print(f"   Extracted HCPCS codes from UCLA format: {extracted_hcpcs_count}")
     
     # Show statistics
     stats = dataset.get_stats()
