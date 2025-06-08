@@ -48,3 +48,4 @@ _sites_default_files_cms-hpt_956006143_ronald-reagan-ucla-medical-center_standar
 
 # Flask
 .webassets-cache instance/hospital_pricing.db
+*.pkl
