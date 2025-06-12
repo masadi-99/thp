@@ -181,6 +181,10 @@ This tool has successfully:
 - **Empowered patients** to make informed healthcare decisions
 - **Demonstrated the value** of standardized medical pricing data
 
+## ** TODO **
+- Add more hospitals around the country
+- Improve procedure matching beyond HCPCS codes
+
 ## **📄 License**
 
 MIT License - Feel free to use, modify, and distribute.
